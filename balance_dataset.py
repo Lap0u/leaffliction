@@ -47,6 +47,7 @@ def balance_dataset(path, key, min_images, current_images):
     )
     augmentation_array.sort()
     images = Distribution.fetch_images(path)
+    images = [image for image in images if key in image]
     for augmentation_id in augmentation_array:
         target_image = images[augmentation_id // (AUGMENT_COUNT - 1)]
         augment_current(augmentation_id % (AUGMENT_COUNT - 1), target_image)
