@@ -19,7 +19,6 @@ def flatten_dir(count_dir):
 
 def augment_current(augmentation_id, target_image):
     """Augment the target image"""
-    print(augmentation_id, target_image)
     img = Image.open(target_image)
     cv2_img = cv2.imread(target_image)
     match (augmentation_id):
@@ -55,7 +54,6 @@ def balance_dataset(path, key, min_images, current_images):
 
 def balance_all_dataset(path, count_dir):
     """Balance the dataset by Augmenting images so that all classes have the same number of images"""
-    print(count_dir)
     classes = flatten_dir(count_dir)
     min_images = min([classes[key] for key in classes]) * AUGMENT_COUNT
     for key in classes:
