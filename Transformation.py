@@ -2,6 +2,41 @@ import argparse
 import os
 from PIL import Image
 import Distribution
+from plantcv import plantcv as pcv
+from plantcv.parallel import WorkflowInputs
+
+
+def analyze_object():
+    args = WorkflowInputs(
+        images=["./leaves/images/Apple_Black_rot/image (1).JPG"],
+        names="image",
+        result="example_results_oneimage_file.csv",
+        outdir=".",
+        writeimg=False,
+        # debug="plot",
+    )
+    # Set debug to the global parameter
+    pcv.params.debug = args.debug
+    # Change display settings
+    pcv.params.dpi = 100
+    pcv.params.text_size = 20
+    pcv.params.text_thickness = 20
+    img, path, filename = pcv.readimage(filename=args.image)
+    # Fill in small objects if the above threshold looks like there are "holes" in the leaves
+    thresh1 = pcv.threshold.dual_channels(
+        rgb_img=img,
+        x_channel="a",
+        y_channel="b",
+        points=[(80, 80), (125, 140)],
+        above=True,
+    )
+    print(img.shape)
+    roi1 = pcv.roi.rectangle(img=img, x=0, y=0, h=img.shape[0], w=img.shape[1])
+    a_fill_image = pcv.fill(bin_img=thresh1, size=50)
+    a_fill_image = pcv.fill_holes(a_fill_image)
+    kept_mask = pcv.roi.filter(mask=a_fill_image, roi=roi1, roi_type="partial")
+    analysis_image = pcv.analyze.size(img=img, labeled_mask=kept_mask)
+    pcv.plot_image(analysis_image)
 
 
 def threshold_filter(path, image, destination=None):
@@ -34,18 +69,19 @@ def transform_img(path, destination=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Explore and analyze data in a given directory"
-    )
-    parser.add_argument(
-        "-src", "--source", help="Directory or file to transform", required=True
-    )
-    parser.add_argument("-dst", "--destination", help="Path to save the file to")
-    args = parser.parse_args()
-    if os.path.isdir(args.source) and args.destination is None:
-        print("Warning: Destination path is required for folders")
-        exit(1)
-    if os.path.isfile(args.source):
-        transform_img(args.source)
-    else:
-        transform_folder(args.source, args.destination)
+    analyze_object()
+    # parser = argparse.ArgumentParser(
+    #     description="Explore and analyze data in a given directory"
+    # )
+    # parser.add_argument(
+    #     "-src", "--source", help="Directory or file to transform", required=True
+    # )
+    # parser.add_argument("-dst", "--destination", help="Path to save the file to")
+    # args = parser.parse_args()
+    # if os.path.isdir(args.source) and args.destination is None:
+    #     print("Warning: Destination path is required for folders")
+    #     exit(1)
+    # if os.path.isfile(args.source):
+    #     transform_img(args.source)
+    # else:
+    #     transform_folder(args.source, args.destination)
