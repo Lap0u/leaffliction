@@ -4,6 +4,8 @@ from PIL import Image
 import Distribution
 from plantcv import plantcv as pcv
 from plantcv.parallel import WorkflowInputs
+import cv2
+import numpy as np
 
 
 def analyze_object():
@@ -62,6 +64,19 @@ def transform_folder(path, destination):
         transform_img(image, destination)
 
 
+def mask_img(path, destination=None):
+    """Apply mask to the image"""
+    image = cv2.imread(path)
+    cv2.imshow("Original", image)
+    low_green = np.array([25, 52, 72])
+    high_green = np.array([102, 255, 255])
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, low_green, high_green)
+    cv2.imshow("Mask", mask)
+    new_path = "./test.jpg"
+    cv2.imwrite(new_path, mask)
+
+
 def transform_img(path, destination=None):
     """Apply all transformation to the image and save it as necessary"""
     image = Image.open(path)
@@ -69,19 +84,20 @@ def transform_img(path, destination=None):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Explore and analyze data in a given directory"
+    )
+    parser.add_argument(
+        "-src", "--source", help="Directory or file to transform", required=True
+    )
+    parser.add_argument("-dst", "--destination", help="Path to save the file to")
+    args = parser.parse_args()
+    if os.path.isdir(args.source) and args.destination is None:
+        print("Warning: Destination path is required for folders")
+        exit(1)
+    mask_img(args.source)
     analyze_object()
-    # parser = argparse.ArgumentParser(
-    #     description="Explore and analyze data in a given directory"
-    # )
-    # parser.add_argument(
-    #     "-src", "--source", help="Directory or file to transform", required=True
-    # )
-    # parser.add_argument("-dst", "--destination", help="Path to save the file to")
-    # args = parser.parse_args()
-    # if os.path.isdir(args.source) and args.destination is None:
-    #     print("Warning: Destination path is required for folders")
-    #     exit(1)
-    # if os.path.isfile(args.source):
-    #     transform_img(args.source)
-    # else:
-    #     transform_folder(args.source, args.destination)
+    if os.path.isfile(args.source):
+        transform_img(args.source)
+    else:
+        transform_folder(args.source, args.destination)
