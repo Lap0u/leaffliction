@@ -53,4 +53,7 @@ model.compile(optimizer=optim, loss=loss, metrics=metrics)
 epochs = 100
 
 model.fit(train_images, epochs=epochs, verbose=2)
+print("\033[96mModel train complete\033[0m")
+print("\033[92mNow evaluating model...")
 model.evaluate(validation_images, verbose=2)
+print("\033[0m")
