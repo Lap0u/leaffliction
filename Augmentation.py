@@ -34,7 +34,7 @@ def save_transformation_cv2(img, path, transformation):
 
 def display_augmented_images(paths):
     """Display the augmented images"""
-    fig = plt.figure(figsize=(100, 100))
+    fig = plt.figure(figsize=(12, 8))
     columns = len(paths)
     for i in range(columns):
         fig.add_subplot(1, columns, i + 1)

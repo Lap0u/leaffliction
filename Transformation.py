@@ -8,37 +8,33 @@ import cv2
 import numpy as np
 
 
-def analyze_object():
-    args = WorkflowInputs(
-        images=["./leaves/images/Apple_Black_rot/image (1).JPG"],
-        names="image",
-        result="example_results_oneimage_file.csv",
-        outdir=".",
-        writeimg=False,
-        # debug="plot",
-    )
-    # Set debug to the global parameter
-    pcv.params.debug = args.debug
-    # Change display settings
-    pcv.params.dpi = 100
-    pcv.params.text_size = 20
-    pcv.params.text_thickness = 20
-    img, path, filename = pcv.readimage(filename=args.image)
-    # Fill in small objects if the above threshold looks like there are "holes" in the leaves
-    thresh1 = pcv.threshold.dual_channels(
-        rgb_img=img,
-        x_channel="a",
-        y_channel="b",
-        points=[(80, 80), (125, 140)],
-        above=True,
-    )
-    print(img.shape)
-    roi1 = pcv.roi.rectangle(img=img, x=0, y=0, h=img.shape[0], w=img.shape[1])
-    a_fill_image = pcv.fill(bin_img=thresh1, size=50)
-    a_fill_image = pcv.fill_holes(a_fill_image)
-    kept_mask = pcv.roi.filter(mask=a_fill_image, roi=roi1, roi_type="partial")
-    analysis_image = pcv.analyze.size(img=img, labeled_mask=kept_mask)
-    pcv.plot_image(analysis_image)
+def transformation_task(path: str):
+    """"""
+    # retriving original image
+    image, path, image_name = pcv.readimage(filename=path)
+    # original to gray for next operation
+    gray_img = pcv.rgb2gray(rgb_img=image)
+    # gray to background black and content white and inverse
+    bin_img_light = pcv.threshold.binary(gray_img, threshold=130, object_type="light")
+    bin_img_dark = pcv.threshold.binary(gray_img, threshold=130, object_type="dark")
+    # pcv.plot_image(bin_img_light)
+    # pcv.plot_image(bin_img_dark)
+    # apply fill_holes to remove noise in binary image
+    bin_img_light = pcv.fill_holes(bin_img_light)
+    bin_img_dark = pcv.fill_holes(bin_img_dark)
+    # pcv.plot_image(bin_img_light)
+    # pcv.plot_image(bin_img_dark)
+    # Apply gaussian blur to reduce noise
+    gaussian_img_light = pcv.gaussian_blur(img=bin_img_light, ksize=(15, 15), sigma_x=0, sigma_y=None)
+    gaussian_img_dark = pcv.gaussian_blur(img=bin_img_dark, ksize=(15, 15), sigma_x=0, sigma_y=None)
+    # pcv.plot_image(gaussian_img_light)
+    # pcv.plot_image(gaussian_img_dark)
+
+    # apply white and black mask
+    masked_image_light = pcv.apply_mask(img=image, mask=bin_img_light, mask_color='white')
+    masked_image_dark = pcv.apply_mask(img=image, mask=bin_img_dark, mask_color='black')
+    pcv.plot_image(masked_image_light)
+    pcv.plot_image(masked_image_dark)
 
 
 def threshold_filter(path, image, destination=None):
@@ -95,9 +91,7 @@ if __name__ == "__main__":
     if os.path.isdir(args.source) and args.destination is None:
         print("Warning: Destination path is required for folders")
         exit(1)
-    mask_img(args.source)
-    analyze_object()
     if os.path.isfile(args.source):
-        transform_img(args.source)
+        transformation_task(args.source)
     else:
         transform_folder(args.source, args.destination)

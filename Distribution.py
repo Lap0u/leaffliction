@@ -21,7 +21,7 @@ def plot_sub_data(data, title):
     """Plot the distribution of images per class"""
     import matplotlib.pyplot as plt
 
-    fig, axs = plt.subplots(1, 2, figsize=(20, 10))
+    fig, axs = plt.subplots(1, 2, figsize=(12, 8))
     fig.suptitle(f"{title} Distribution")
     axs[0].bar(data.keys(), data.values())
     axs[1].pie(data.values(), labels=data.keys(), autopct="%1.1f%%")
