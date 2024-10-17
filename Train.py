@@ -1,7 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
+import os
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 
 train_images, validation_images = keras.utils.image_dataset_from_directory(
@@ -35,13 +36,13 @@ class_names = [
 ]
 
 model = keras.models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation="relu", input_shape=(32, 32, 3)))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(32, (3, 3), activation="relu"))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation="relu"))
-model.add(layers.Dense(10))
+model.add(keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(32, 32, 3)))
+model.add(keras.layers.MaxPooling2D((2, 2)))
+model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
+model.add(keras.layers.MaxPooling2D((2, 2)))
+model.add(keras.layers.Flatten())
+model.add(keras.layers.Dense(64, activation="relu"))
+model.add(keras.layers.Dense(10))
 model.summary()
 
 
@@ -56,4 +57,7 @@ model.fit(train_images, epochs=epochs, verbose=2)
 print("\033[96mModel train complete\033[0m")
 print("\033[92mNow evaluating model...")
 model.evaluate(validation_images, verbose=2)
+if not os.path.exists('model'):
+	os.mkdir("model")
+model.save("model/model"+datetime.now().strftime("_%m-%d_%H:%M")+".keras")
 print("\033[0m")
