@@ -7,6 +7,11 @@ from plantcv.parallel import WorkflowInputs
 import cv2
 import numpy as np
 
+def analyze_with_roi(image):
+    """"""
+    # Définir une ROI (ici un rectangle autour de la plante)
+    roi_contour, roi_hierarchy = pcv.roi.rectangle(img=image, x=10, y=10, h=10, w=10)
+
 
 def transformation_task(path: str):
     """"""
@@ -15,12 +20,12 @@ def transformation_task(path: str):
     # original to gray for next operation
     gray_img = pcv.rgb2gray(rgb_img=image)
     # gray to background black and content white and inverse
-    bin_img_light = pcv.threshold.binary(gray_img, threshold=130, object_type="light")
-    bin_img_dark = pcv.threshold.binary(gray_img, threshold=130, object_type="dark")
+    bin_img_light = pcv.threshold.binary(gray_img, threshold=125, object_type="light")
+    bin_img_dark = pcv.threshold.binary(gray_img, threshold=125, object_type="dark")
     # pcv.plot_image(bin_img_light)
     # pcv.plot_image(bin_img_dark)
     # apply fill_holes to remove noise in binary image
-    bin_img_light = pcv.fill_holes(bin_img_light)
+    # bin_img_light = pcv.fill_holes(bin_img_light)
     bin_img_dark = pcv.fill_holes(bin_img_dark)
     # pcv.plot_image(bin_img_light)
     # pcv.plot_image(bin_img_dark)
@@ -33,8 +38,14 @@ def transformation_task(path: str):
     # apply white and black mask
     masked_image_light = pcv.apply_mask(img=image, mask=bin_img_light, mask_color='white')
     masked_image_dark = pcv.apply_mask(img=image, mask=bin_img_dark, mask_color='black')
-    pcv.plot_image(masked_image_light)
-    pcv.plot_image(masked_image_dark)
+    # pcv.plot_image(masked_image_light)
+    # pcv.plot_image(masked_image_dark)
+
+    # compute RoI (Region of Interest) object
+    mask = pcv.naive_bayes_classifier(rgb_img=image, 
+                                  pdf_file="./machine_learning.txt")
+    # analyze_with_roi(image=image)
+
 
 
 def threshold_filter(path, image, destination=None):
