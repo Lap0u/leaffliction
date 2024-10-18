@@ -24,7 +24,6 @@ def predict(path_model, path_data):
 	follow_links=False,
 )
 
-	
 
 if __name__=="__main__":
 	parser = argparse.ArgumentParser(description="Permet de charger le modele et de predire les donnees")
