@@ -1,14 +1,21 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
 from datetime import datetime
 import argparse
 
-if __name__ =="__main__":
-    parser = argparse.ArgumentParser(description="This program train model to predict leaf class")
-    parser.add_argument("path_data", default="leaves/images/", help="The path to data to train with")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="This program train model to predict leaf class"
+    )
+    parser.add_argument(
+        "path_data",
+        default="leaves/images/",
+        help="The path to data to train with",
+    )
     args = parser.parse_args()
 
     train_images, validation_images = keras.utils.image_dataset_from_directory(

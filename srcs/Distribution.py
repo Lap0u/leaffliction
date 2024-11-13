@@ -81,7 +81,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Explore and analyze data in a given directory"
     )
-    parser.add_argument("-d", "--directory", help="Directory to explore", required=True)
+    parser.add_argument(
+        "-d", "--directory", help="Directory to explore", required=True
+    )
     args = parser.parse_args()
     images = fetch_images(args.directory)
     count_dir = count_images_per_directory(images)

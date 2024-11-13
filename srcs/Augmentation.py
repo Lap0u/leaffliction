@@ -8,14 +8,18 @@ import cv2
 def blur_and_save(img, path):
     """Blur the image and save it"""
     blurred_img = img.filter(ImageFilter.BLUR)
-    return save_transformation(img=blurred_img, path=path, transformation="Blurred")
+    return save_transformation(
+        img=blurred_img, path=path, transformation="Blurred"
+    )
 
 
 def rotate_and_save(img, path):
     """Rotate the image and save it"""
     degrees = random.randint(-45, 45)
     rotated_img = img.rotate(degrees)
-    return save_transformation(img=rotated_img, path=path, transformation="Rotated")
+    return save_transformation(
+        img=rotated_img, path=path, transformation="Rotated"
+    )
 
 
 def save_transformation(img, path, transformation):
@@ -50,7 +54,9 @@ def add_contrast_and_save(img, path):
     """Add contrast to the image and save it"""
     contrast = 2
     img = cv2.convertScaleAbs(img, alpha=contrast)
-    return save_transformation_cv2(img=img, path=path, transformation="Contrast")
+    return save_transformation_cv2(
+        img=img, path=path, transformation="Contrast"
+    )
 
 
 def scale_and_save(img, path):
@@ -69,13 +75,17 @@ def add_brightness_and_save(img, path):
     """Add brightness to the image and save it"""
     brightness = 100
     img = cv2.convertScaleAbs(img, beta=brightness)
-    return save_transformation_cv2(img=img, path=path, transformation="Brigthness")
+    return save_transformation_cv2(
+        img=img, path=path, transformation="Brigthness"
+    )
 
 
 def flip_and_save(img, path):
     """Flip the image and save it"""
     flipped_img = img.transpose(Image.FLIP_LEFT_RIGHT)
-    return save_transformation(img=flipped_img, path=path, transformation="Flipped")
+    return save_transformation(
+        img=flipped_img, path=path, transformation="Flipped"
+    )
 
 
 if __name__ == "__main__":
@@ -93,5 +103,7 @@ if __name__ == "__main__":
     augmented_paths.append(blur_and_save(img=img, path=args.file))
     augmented_paths.append(add_contrast_and_save(img=cv2_img, path=args.file))
     augmented_paths.append(scale_and_save(img=img, path=args.file))
-    augmented_paths.append(add_brightness_and_save(img=cv2_img, path=args.file))
+    augmented_paths.append(
+        add_brightness_and_save(img=cv2_img, path=args.file)
+    )
     display_augmented_images(paths=augmented_paths)

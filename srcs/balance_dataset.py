@@ -33,7 +33,9 @@ def augment_current(augmentation_id, target_image):
         case 4:  # Scale
             Augmentation.scale_and_save(img=img, path=target_image)
         case 5:  # Brightness
-            Augmentation.add_brightness_and_save(img=cv2_img, path=target_image)
+            Augmentation.add_brightness_and_save(
+                img=cv2_img, path=target_image
+            )
 
 
 def balance_dataset(path, key, min_images, current_images):
@@ -64,7 +66,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Explore and analyze data in a given directory"
     )
-    parser.add_argument("-d", "--dataset", help="Dataset to balance", required=True)
+    parser.add_argument(
+        "-d", "--dataset", help="Dataset to balance", required=True
+    )
     args = parser.parse_args()
     images = Distribution.fetch_images(args.dataset)
     count_dir = Distribution.count_images_per_directory(images)
