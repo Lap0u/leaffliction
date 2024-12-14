@@ -1,5 +1,6 @@
 import argparse
 import os
+import matplotlib.cm as cm
 
 MAX_DEPTH = 4
 MAIN_CLASSES = ["Apple", "Grape"]
@@ -23,7 +24,7 @@ def plot_sub_data(data, title):
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 8))
     fig.suptitle(f"{title} Distribution")
-    axs[0].bar(data.keys(), data.values())
+    axs[0].bar(data.keys(), data.values(), color=cm.tab10(range(len(data.keys()))))
     axs[1].pie(data.values(), labels=data.keys(), autopct="%1.1f%%")
     plt.show()
 
