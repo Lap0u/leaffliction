@@ -6,6 +6,8 @@ from plantcv import plantcv as pcv
 from plantcv.parallel import WorkflowInputs
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+pcv.params.sample_label="leaf"
 
 
 def analyze_with_roi(image):
@@ -19,48 +21,39 @@ def analyze_with_roi(image):
 def transformation_task(path: str):
     """"""
     # retriving original image
-    image, path, image_name = pcv.readimage(filename=path)
-    # original to gray for next operation
-    gray_img = pcv.rgb2gray(rgb_img=image)
-    # gray to background black and content white and inverse
-    bin_img_light = pcv.threshold.binary(
-        gray_img, threshold=125, object_type="light"
-    )
-    bin_img_dark = pcv.threshold.binary(
-        gray_img, threshold=125, object_type="dark"
-    )
-    # pcv.plot_image(bin_img_light)
-    # pcv.plot_image(bin_img_dark)
-    # apply fill_holes to remove noise in binary image
-    # bin_img_light = pcv.fill_holes(bin_img_light)
-    bin_img_dark = pcv.fill_holes(bin_img_dark)
-    # pcv.plot_image(bin_img_light)
-    # pcv.plot_image(bin_img_dark)
-    # Apply gaussian blur to reduce noise
-    gaussian_img_light = pcv.gaussian_blur(
-        img=bin_img_light, ksize=(15, 15), sigma_x=0, sigma_y=None
-    )
-    gaussian_img_dark = pcv.gaussian_blur(
-        img=bin_img_dark, ksize=(15, 15), sigma_x=0, sigma_y=None
-    )
-    # pcv.plot_image(gaussian_img_light)
-    # pcv.plot_image(gaussian_img_dark)
+    img, path, image_name = pcv.readimage(filename=path)
 
-    # apply white and black mask
-    masked_image_light = pcv.apply_mask(
-        img=image, mask=bin_img_light, mask_color="white"
-    )
-    masked_image_dark = pcv.apply_mask(
-        img=image, mask=bin_img_dark, mask_color="black"
-    )
-    # pcv.plot_image(masked_image_light)
-    # pcv.plot_image(masked_image_dark)
+    #Select the better channel that maximizes the difference 
+    # between the plant and the background pixels
+    # pcv.params.debug = "plot"
+    colorspaces = pcv.visualize.colorspaces(rgb_img=img, original_img=False)
 
-    # compute RoI (Region of Interest) object
-    mask = pcv.naive_bayes_classifier(
-        rgb_img=image, pdf_file="./machine_learning.txt"
-    )
-    # analyze_with_roi(image=image)
+    #we choose a or b
+    a = pcv.rgb2gray_lab(rgb_img=img, channel="a")
+
+    a_thresh = pcv.threshold.binary(gray_img=a, threshold=120, object_type='dark')
+
+    roi1 = pcv.roi.rectangle(img=a_thresh, x=35, y=10, h=245, w=200)
+
+    kept_mask = pcv.roi.filter(mask=a_thresh, roi=roi1, roi_type='partial')
+
+    mask_dilated = pcv.dilate(gray_img=kept_mask, ksize=3, i=1)
+
+    mask_fill = pcv.fill(bin_img=mask_dilated, size=30)
+    mask_fill = pcv.fill_holes(bin_img=mask_fill)
+
+    skeleton = pcv.morphology.skeletonize(mask=mask_fill)
+
+    pruned_skel, seg_img, edge_objects = pcv.morphology.prune(skel_img=skeleton, size=50, mask=mask_fill)
+
+    tip_pts_mask = pcv.morphology.find_tips(skel_img=pruned_skel, mask=None, label="default")
+
+    branch_pts_mask = pcv.morphology.find_branch_pts(skel_img=pruned_skel, mask=mask_fill, label="default")
+
+    shape_img = pcv.analyze.size(img=img, labeled_mask=mask_fill, label="default")
+
+    top, bottom, center_v = pcv.homology.x_axis_pseudolandmarks(img=img, mask=mask_fill)
+    top, bottom, center_v = pcv.homology.y_axis_pseudolandmarks(img=img, mask=mask_fill)
 
 
 def threshold_filter(path, image, destination=None):
