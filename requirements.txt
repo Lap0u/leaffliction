@@ -99,6 +99,7 @@ threadpoolctl==3.5.0
 tifffile==2024.8.30
 toolz==0.12.1
 tornado==6.4.1
+tqdm==4.67.1
 traitlets==5.14.3
 trio==0.27.0
 trio-websocket==0.11.1
