@@ -60,5 +60,5 @@ if not os.path.exists('model'):
 model.save("model/model"+datetime.now().strftime("_%m-%d_%H:%M")+".keras")
 
 # Ici enregister dans un .zip les images ayant servis a l'entrainement!
-# Enregistrer separement les images du training et celles de la prediction!
+# Enregistrer separement les images du training et celles de la validation!
 # Et le model precedement entrainer et enregistrer!
