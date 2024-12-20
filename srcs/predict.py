@@ -28,6 +28,9 @@ def predict(path_model, path_data):
         )
     )
 
+    model.evaluate(train_images)
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

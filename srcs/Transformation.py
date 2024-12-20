@@ -107,7 +107,6 @@ def register_transformed_imgs(origin_path: str, to_save_image_list: List[np.ndar
     for image, suf in zip(to_save_image_list, suffix):
         name = destination_path + origin_path[:-4] + suf + ".jpg"
         name = ''.join(name.split())
-        # print(name)
         cv2.imwrite(name, image)
 
 
