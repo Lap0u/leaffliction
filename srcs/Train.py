@@ -33,45 +33,31 @@ if __name__ == "__main__":
         follow_links=False,
     )
 
-print(train_images)
-# class_names = [
-#     "airplane",
-#     "automobile",
-#     "bird",
-#     "cat",
-#     "deer",
-#     "dog",
-#     "frog",
-#     "horse",
-#     "ship",
-#     "truck",
-# ]
+model = keras.models.Sequential()
+model.add(keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(32, 32, 3)))
+model.add(keras.layers.MaxPooling2D((2, 2)))
+model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
+model.add(keras.layers.MaxPooling2D((2, 2)))
+model.add(keras.layers.Flatten())
+model.add(keras.layers.Dense(64, activation="relu"))
+model.add(keras.layers.Dense(10))
+model.summary()
 
-# model = keras.models.Sequential()
-# model.add(keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(32, 32, 3)))
-# model.add(keras.layers.MaxPooling2D((2, 2)))
-# model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
-# model.add(keras.layers.MaxPooling2D((2, 2)))
-# model.add(keras.layers.Flatten())
-# model.add(keras.layers.Dense(64, activation="relu"))
-# model.add(keras.layers.Dense(10))
-# model.summary()
+loss = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+optim = keras.optimizers.Adam(learning_rate=0.001)
+metrics = ["accuracy"]
+model.compile(optimizer=optim, loss=loss, metrics=metrics)
 
-# loss = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-# optim = keras.optimizers.Adam(learning_rate=0.001)
-# metrics = ["accuracy"]
-# model.compile(optimizer=optim, loss=loss, metrics=metrics)
+epochs = 100
 
-# epochs = 100
-
-# model.fit(train_images, epochs=epochs, verbose=2)
-# print("\033[96mModel train complete\033[0m")
-# print("\033[92mNow evaluating model...")
-# model.evaluate(validation_images, verbose=2)
-# print("\033[0m")
-# if not os.path.exists('model'):
-# 	os.mkdir("model")
-# model.save("model/model"+datetime.now().strftime("_%m-%d_%H:%M")+".keras")
+model.fit(train_images, epochs=epochs, verbose=2)
+print("\033[96mModel train complete\033[0m")
+print("\033[92mNow evaluating model...")
+model.evaluate(validation_images, verbose=2)
+print("\033[0m")
+if not os.path.exists('model'):
+	os.mkdir("model")
+model.save("model/model"+datetime.now().strftime("_%m-%d_%H:%M")+".keras")
 
 # Ici enregister dans un .zip les images ayant servis a l'entrainement!
 # Enregistrer separement les images du training et celles de la prediction!
