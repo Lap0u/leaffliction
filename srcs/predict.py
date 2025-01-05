@@ -1,8 +1,19 @@
+import argparse
+import tensorflow as tf
+import numpy as np
 import os
+from keras.api.preprocessing.image import load_img
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-import tensorflow as tf
-import argparse
+
+
+def find_labels(path):
+    for _, direct, _ in os.walk((path)):
+        labels = direct
+        break
+    labels.sort()
+    labels = {i: name for i, name in enumerate(labels)}
+    return labels
 
 
 def predict(path_model, path_data):
@@ -11,7 +22,7 @@ def predict(path_model, path_data):
     except ValueError:
         print(f"Error, no model available at {path_model}")
 
-    train_images, validation_images = (
+    _, validation_images = (
         tf.keras.utils.image_dataset_from_directory(
             path_data,
             labels="inferred",
@@ -19,7 +30,7 @@ def predict(path_model, path_data):
             class_names=None,
             color_mode="rgb",
             batch_size=32,
-            image_size=(32, 32),
+            image_size=(64, 64),
             seed=42,
             validation_split=0.2,
             subset="both",
@@ -28,8 +39,26 @@ def predict(path_model, path_data):
         )
     )
 
-    model.evaluate(train_images)
+    model.evaluate(validation_images)
 
+
+def predict_image(path_model, path_img):
+    try:
+        model = tf.keras.models.load_model(path_model)
+    except ValueError:
+        print(f"Error, no model available at {path_model}")
+        exit(1)
+
+    img = load_img(path_img, target_size=(64, 64))
+    img = np.array(img)
+    img = np.expand_dims(img, axis=0)
+
+    labels = find_labels(os.path.dirname(os.path.dirname(path_img)))
+    predictions = model.predict(img)
+    [print(f"{pred:5.3e}:", lab)
+     for pred, lab in zip(predictions[0], list(labels.values()))]
+    predicted_label = labels[np.argmax(predictions)]
+    return predicted_label
 
 
 if __name__ == "__main__":
@@ -41,11 +70,13 @@ if __name__ == "__main__":
         "path_model", default="model", help="Path vers le model a charger."
     )  # Argument positionnel
     parser.add_argument(
-        "--path_data",
+        "path_data",
         default="leaves/images/",
         help="Path vers les donnees a predire.",
     )
 
     args = parser.parse_args()
-
-    predict(args.path_model, args.path_data)
+    if os.path.isdir(args.path_data):
+        predict(args.path_model, args.path_data)
+    else:
+        predict_image(args.path_model, args.path_data)
